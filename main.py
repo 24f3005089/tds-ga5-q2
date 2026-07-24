@@ -16,8 +16,10 @@ def proration(req: Request):
     diff = req.new_price - req.old_price
 
     if req.spec == "v1":
-        charge = diff * (req.days_remaining / 30)
+        divisor = 30.0
+    elif req.spec == "v2":
+        divisor = req.days_in_actual_month
     else:
-        charge = diff * (req.days_remaining / req.days_in_actual_month)
+        raise HTTPException(status_code=400, detail="Invalid spec")
 
-    return {"charge": charge}
+    return {"charge": diff * (req.days_remaining / divisor)}
